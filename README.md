@@ -1,6 +1,6 @@
 # VRChat FukidashiSystem
 
-Experimental Unity Project that provides Inventory System in VRChat.
+Experimental Unity Project that provides Fukidashi System in VRChat.
 
 > NOTICE: THIS PROJECT IS EXPERIMENTAL. PLEASE USE IT AT YOUR OWN RISK.
 
