@@ -19,7 +19,7 @@ namespace Mochizuki.VRChat.FukidashiSystem
 {
     public class Packaging : EditorWindow
     {
-        private readonly string _unityPackageName = "VRChat-FukidashiSystem.unitypackage";
+        private const string UNITY_PACKAGE_NAME = "VRChat-FukidashiSystem.unitypackage";
         private string _projectRoot;
         private string _version;
         private string _versionMetaPath;
@@ -84,7 +84,7 @@ namespace Mochizuki.VRChat.FukidashiSystem
             if (!Directory.Exists(destRoot))
                 Directory.CreateDirectory(destRoot);
 
-            AssetDatabase.ExportPackage(assets, Path.Combine(destRoot, _unityPackageName), ExportPackageOptions.Default);
+            AssetDatabase.ExportPackage(assets, Path.Combine(destRoot, UNITY_PACKAGE_NAME), ExportPackageOptions.Default);
             if (File.Exists(Path.Combine(destRoot, "README.txt")))
                 File.Delete(Path.Combine(destRoot, "README.txt"));
             File.Copy(Path.Combine(_projectRoot, "README.txt"), Path.Combine(destRoot, "README.txt"));
