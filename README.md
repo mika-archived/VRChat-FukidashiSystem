@@ -8,6 +8,7 @@ Experimental Unity Project that provides Fukidashi System in VRChat.
 
 - Unity 2018.3 or higher
   - I think it will probably work below that, but I don't guarantee that it will work.
+- **VRCSDK3 AVATARS**
 
 ## Video
 
