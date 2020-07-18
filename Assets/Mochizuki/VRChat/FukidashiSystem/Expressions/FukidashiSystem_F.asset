@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -281001752, guid: 661092b4961be7145bfbe56e1e62337b, type: 3}
+  m_Name: FukidashiSystem_F
+  m_EditorClassIdentifier: 
+  stageParameters: {fileID: 11400000, guid: 7bf9475e2000f0d469d56628a76cd3b4, type: 2}
+  controls:
+  - name: Mochizuki Fukidashi System
+    icon: {fileID: 2800000, guid: ae87f67e98a20294082a139386f57b45, type: 3}
+    type: 103
+    parameter:
+      name: 
+    value: 1
+    style: 0
+    subMenu: {fileID: 11400000, guid: 38198afe64b58ff4ea540a72280b5c7a, type: 2}
+    subParameter1:
+      name: 
+    subParameter2:
+      name: 
+    subParameter3:
+      name: 
+    subParameter4:
+      name: 
+    label1:
+      name: 
+      icon: {fileID: 0}
+    label2:
+      name: 
+      icon: {fileID: 0}
+    label3:
+      name: 
+      icon: {fileID: 0}
+    label4:
+      name: 
+      icon: {fileID: 0}

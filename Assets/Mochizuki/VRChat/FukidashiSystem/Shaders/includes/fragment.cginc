@@ -5,13 +5,6 @@
 
 // #include "core.cginc"
 
-uint isPlayerSelf()
-{
-    fixed4 color = tex2D(_CameraMemoryTexture, float2(0.5, 0.5));
-
-    return sign(color.r + color.g + color.b + color.a);
-}
-
 float2 getTextureUVFromNo(float2 uv)
 {
     const uint no = (uint) clamp(floor(_TextureNo), 0, 15);
@@ -33,10 +26,6 @@ float4 fs(v2f i) : SV_TARGET
         const float2 uv = getTextureUVFromNo(i.uv);
         color = tex2D(_Texture, uv) * _BackgroundColor;
     }
-
-#ifdef RENDERMODE_CONTROLLER
-    color.a = lerp(color.a, 0.0, abs(sign(1 - isPlayerSelf())));
-#endif
 
     return color;
 }
