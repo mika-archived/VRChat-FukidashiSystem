@@ -91,33 +91,33 @@ namespace Mochizuki.VRChat.FukidashiSystem
             _prefab = EditorGUILayoutExtensions.ReadonlyObjectPicker("Message Board Prefab", AssetDatabaseExtensions.LoadAssetFromGuid<GameObject>(PrefabGuid));
 
             _isShowOptions = EditorGUILayout.Foldout(_isShowOptions, "Merge Options");
-			if (_isShowOptions)
-			{
-				using (new IncreaseIndent())
-				{
-					_isMergeAnimatorController = EditorGUILayout.Toggle("Merge with existing Animator Controller", _isMergeAnimatorController);
-					_isMergeExpressionsMenu = EditorGUILayout.Toggle("Merge with existing Expressions Menu", _isMergeExpressionsMenu);
-					_isMergeStageParameters = EditorGUILayout.Toggle("Merge with existing Expression Parameters", _isMergeStageParameters);
-				}
-			}
-
-			using (new DisabledGroup(_avatar == null || _parent == null))
+            if (_isShowOptions)
             {
-				if (GUILayout.Button("Generate Assets and Apply Changes"))
-				{
-					try
-					{
-						OnSubmit();
-					}
-					catch (Exception e)
-					{
-						GUILayout.Label($"An error occurred in operation -> {e.GetType().Name}");
-						GUILayout.Label($"Error Message : {e.Message}");
+                using (new IncreaseIndent())
+                {
+                    _isMergeAnimatorController = EditorGUILayout.Toggle("Merge with existing Animator Controller", _isMergeAnimatorController);
+                    _isMergeExpressionsMenu = EditorGUILayout.Toggle("Merge with existing Expressions Menu", _isMergeExpressionsMenu);
+                    _isMergeStageParameters = EditorGUILayout.Toggle("Merge with existing Expression Parameters", _isMergeStageParameters);
+                }
+            }
 
-						Debug.LogError(e);
-					}
-				}
-			}
+            using (new DisabledGroup(_avatar == null || _parent == null))
+            {
+                if (GUILayout.Button("Generate Assets and Apply Changes"))
+                {
+                    try
+                    {
+                        OnSubmit();
+                    }
+                    catch (Exception e)
+                    {
+                        GUILayout.Label($"An error occurred in operation -> {e.GetType().Name}");
+                        GUILayout.Label($"Error Message : {e.Message}");
+
+                        Debug.LogError(e);
+                    }
+                }
+            }
         }
 
         private void OnSubmit()
