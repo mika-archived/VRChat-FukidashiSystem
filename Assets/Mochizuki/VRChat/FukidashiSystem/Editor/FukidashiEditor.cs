@@ -153,6 +153,10 @@ namespace Mochizuki.VRChat.FukidashiSystem
         private static VRCExpressionParameters MergeWithExistsExpressionParameters(VRCAvatarDescriptor avatar, string dest)
         {
             var parameters = AssetDatabaseExtensions.CopyAndLoadAsset(avatar.expressionParameters, dest);
+
+            // WORKAROUND: The values of VRCExpressionParameters is not copied by AssetDatabase.CopyAsset.
+            parameters.parameters = avatar.expressionParameters.parameters;
+
             parameters.AddParametersToFirstEmptySpace(StageParametersId, VRCExpressionParameters.ValueType.Int);
 
             AssetDatabase.SaveAssets();
@@ -215,7 +219,12 @@ namespace Mochizuki.VRChat.FukidashiSystem
 
         private static AnimatorController MergeWithExistsAnimatorController(VRCAvatarDescriptor avatar, List<AnimationClip> animations, string dest)
         {
-            var controller = (AnimatorController) AssetDatabaseExtensions.CopyAndLoadAsset(avatar.GetAnimationLayer(VRCAvatarDescriptor.AnimLayerType.FX).animatorController, dest);
+            var baseController = (AnimatorController)avatar.GetAnimationLayer(VRCAvatarDescriptor.AnimLayerType.FX).animatorController;
+            var controller = AssetDatabaseExtensions.CopyAndLoadAsset(baseController, dest);
+
+            // WORKAROUND: AssetDatabase.CopyAsset does not work correctly??
+            controller.layers = baseController.layers;
+
             if (!controller.HasParameter(StageParametersId))
                 controller.AddParameter(StageParametersId, AnimatorControllerParameterType.Int);
             if (controller.HasLayer("Fukidashi System"))
@@ -223,7 +232,8 @@ namespace Mochizuki.VRChat.FukidashiSystem
             controller.AddLayer("Fukidashi System");
 
             var layer = controller.GetLayer("Fukidashi System");
-            layer.defaultWeight = 1.0f;
+            layer.defaultWeight = 1;
+            controller.SetLayer("Fukidashi System", layer);
 
             var stateMachine = layer.stateMachine;
 
@@ -308,6 +318,10 @@ namespace Mochizuki.VRChat.FukidashiSystem
         private static VRCExpressionsMenu MergeWithExistsOuterExpressionsMenu(VRCAvatarDescriptor avatar, VRCExpressionsMenu first, string dest)
         {
             var expr = AssetDatabaseExtensions.CopyAndLoadAsset(avatar.expressionsMenu, dest);
+
+            // WORKAROUND: The values of VRCExpressionsMenu is not copied by AssetDatabase.CopyAsset.
+            expr.controls = avatar.expressionsMenu.controls;
+
             if (expr.controls.Any(w => w.name == OuterExprName))
             {
                 var control = expr.controls.First(w => w.name == OuterExprName);
@@ -336,11 +350,11 @@ namespace Mochizuki.VRChat.FukidashiSystem
             avatar.SetAnimationLayer(VRCAvatarDescriptor.AnimLayerType.FX, controller);
             avatar.SetExpressions(expr, parameters);
 
-            var instance = (GameObject) PrefabUtility.InstantiatePrefab(prefab);
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
             PrefabUtility.UnpackPrefabInstance(instance, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
-			instance.transform.position = new Vector3(0, 0, 0);
-			instance.transform.rotation = Quaternion.Euler(0, 180, 0);
             instance.transform.parent = parent.transform;
+            instance.transform.localPosition = new Vector3(0, 0, 0);
+            instance.transform.localRotation = Quaternion.Euler(0, 180, 0);
         }
     }
 }
