@@ -6,8 +6,9 @@ Experimental Unity Project that provides Fukidashi System in VRChat.
 
 ## Requirements
 
-- Unity 2018.3 or higher
-- **VRCSDK3 AVATAR** 2020.07.30.09.18_Public
+- Unity 2018.4.20f1
+- VRCSDK3-AVATAR 2020.08.06.16.30 or higher
+- VRChat 2020.3.2p1, Build 970 or higher
 
 ## Video
 
@@ -15,7 +16,7 @@ https://twitter.com/6jz/status/1268547452677885952 (Old Implementation in VRCSDK
 
 ## How to use (Japanese)
 
-https://docs.mochizuki.moe/VRChat/FukidashiSystem (WIP)
+https://docs.mochizuki.moe/VRChat/FukidashiSystem
 
 ## License
 
