@@ -5,18 +5,8 @@
 
 sampler2D _Texture;
 float4 _Texture_ST;
-sampler2D _CameraMemoryTexture;
-float4 _CameraMemoryTexture_ST;
 float _TextureNo;
 float4 _BackgroundColor;
-
-#ifdef S_RENDERMODE_CONTROLLER
-#define  RENDERMODE_CONTROLLER
-#endif
-
-#ifdef S_RENDERMODE_VIEWER
-#define  RENDERMODE_VIEWER
-#endif
 
 #define TEXTURE_PARTS_COUNT 16.0
 #define TEXTURE_PARTS_HEIGHT_DIVIDE 8.0
