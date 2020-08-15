@@ -28,6 +28,8 @@ namespace Mochizuki.VRChat.FukidashiSystem
 {
     internal class FukidashiEditor : EditorWindow
     {
+        private const string Product = "FukidashiSystem";
+        private const string Version = "0.2.0";
         private const string IconTextureGuid = "ae87f67e98a20294082a139386f57b45";
         private const string StageParametersId = "Mochizuki_FukidashiSystem";
         private const string PrefabGuid = "24493fbf74952924da5e7590ff84f993";
