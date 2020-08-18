@@ -5,9 +5,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
+using Mochizuki.VRChat.Extensions.Convenience;
 using Mochizuki.VRChat.Extensions.Unity;
 using Mochizuki.VRChat.Extensions.VRC;
 
@@ -19,10 +22,14 @@ using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
 
+using Debug = UnityEngine.Debug;
+
 namespace Mochizuki.VRChat.FukidashiSystem
 {
     internal class FukidashiEditor : EditorWindow
     {
+        private const string Product = "FukidashiSystem";
+        private const string Version = "0.2.0";
         private const string IconTextureGuid = "ae87f67e98a20294082a139386f57b45";
         private const string StageParametersId = "Mochizuki_FukidashiSystem";
         private const string PrefabGuid = "24493fbf74952924da5e7590ff84f993";
@@ -60,6 +67,8 @@ namespace Mochizuki.VRChat.FukidashiSystem
             ("Message 16", 16)
         }.AsReadOnly();
 
+        private static readonly VersionManager Manager;
+
         private VRCAvatarDescriptor _avatar;
         private bool _isMergeAnimatorController;
         private bool _isMergeExpressionsMenu;
@@ -67,6 +76,17 @@ namespace Mochizuki.VRChat.FukidashiSystem
         private bool _isShowOptions;
         private GameObject _parent;
         private GameObject _prefab;
+
+        static FukidashiEditor()
+        {
+            Manager = new VersionManager("mika-f/VRChat-FukidashiSystem", Version, new Regex("v(?<version>.*)"));
+        }
+
+        [InitializeOnLoadMethod]
+        public static void InitializeOnLoad()
+        {
+            Manager.CheckNewVersion();
+        }
 
         [MenuItem("Mochizuki/VRChat/Fukidashi Editor")]
         public static void ShowWindow()
@@ -81,7 +101,7 @@ namespace Mochizuki.VRChat.FukidashiSystem
         private void OnGUI()
         {
             EditorGUILayout.Space();
-            GUILayout.Label("Mochizuki.FukidashiSystem for VRChat Avatars 3.0 / Version 0.1");
+            GUILayout.Label($"{Product} for VRChat Avatars 3.0 / Version {Version}");
             EditorGUILayout.Space();
 
             EditorGUIUtility.labelWidth = 300;
@@ -92,19 +112,16 @@ namespace Mochizuki.VRChat.FukidashiSystem
 
             _isShowOptions = EditorGUILayout.Foldout(_isShowOptions, "Merge Options");
             if (_isShowOptions)
-            {
                 using (new IncreaseIndent())
                 {
                     _isMergeAnimatorController = EditorGUILayout.Toggle("Merge with existing Animator Controller", _isMergeAnimatorController);
                     _isMergeExpressionsMenu = EditorGUILayout.Toggle("Merge with existing Expressions Menu", _isMergeExpressionsMenu);
                     _isMergeStageParameters = EditorGUILayout.Toggle("Merge with existing Expression Parameters", _isMergeStageParameters);
                 }
-            }
 
             using (new DisabledGroup(_avatar == null || _parent == null))
             {
                 if (GUILayout.Button("Generate Assets and Apply Changes"))
-                {
                     try
                     {
                         OnSubmit();
@@ -116,8 +133,14 @@ namespace Mochizuki.VRChat.FukidashiSystem
 
                         Debug.LogError(e);
                     }
-                }
             }
+
+            if (Manager.HasNewVersion)
+                using (new EditorGUILayout.VerticalScope(GUI.skin.box))
+                {
+                    EditorGUILayout.LabelField("フキダシシステムの新しいバージョンが利用可能です。");
+                    if (GUILayout.Button("BOOTH からダウンロードする")) Process.Start("https://natsuneko.booth.pm/items/2149045");
+                }
         }
 
         private void OnSubmit()
@@ -152,14 +175,12 @@ namespace Mochizuki.VRChat.FukidashiSystem
 
         private static VRCExpressionParameters MergeWithExistsExpressionParameters(VRCAvatarDescriptor avatar, string dest)
         {
-            var parameters = AssetDatabaseExtensions.CopyAndLoadAsset(avatar.expressionParameters, dest);
-
-            // WORKAROUND: The values of VRCExpressionParameters is not copied by AssetDatabase.CopyAsset.
-            parameters.parameters = avatar.expressionParameters.parameters;
-
+            var parameters = CreateInstance<VRCExpressionParameters>();
+            parameters.InitExpressionParameters();
+            parameters.MergeParameters(avatar.expressionParameters);
             parameters.AddParametersToFirstEmptySpace(StageParametersId, VRCExpressionParameters.ValueType.Int);
 
-            AssetDatabase.SaveAssets();
+            AssetDatabase.CreateAsset(parameters, dest);
 
             return parameters;
         }
@@ -197,9 +218,9 @@ namespace Mochizuki.VRChat.FukidashiSystem
         {
             var controller = new AnimatorController();
             controller.AddParameter(StageParametersId, AnimatorControllerParameterType.Int);
-            controller.AddLayer("Base Layer");
+            controller.AddLayer("Fukidashi System");
 
-            var layer = controller.GetLayer("Base Layer");
+            var layer = controller.GetLayer("Fukidashi System");
             var stateMachine = layer.stateMachine;
 
             foreach (var (animation, index) in animations.Select((w, i) => (Value: w, Index: i)))
@@ -219,16 +240,19 @@ namespace Mochizuki.VRChat.FukidashiSystem
 
         private static AnimatorController MergeWithExistsAnimatorController(VRCAvatarDescriptor avatar, List<AnimationClip> animations, string dest)
         {
-            var baseController = (AnimatorController)avatar.GetAnimationLayer(VRCAvatarDescriptor.AnimLayerType.FX).animatorController;
-            var controller = AssetDatabaseExtensions.CopyAndLoadAsset(baseController, dest);
-
-            // WORKAROUND: AssetDatabase.CopyAsset does not work correctly??
-            controller.layers = baseController.layers;
+            var baseController = (AnimatorController) avatar.GetAnimationLayer(VRCAvatarDescriptor.AnimLayerType.FX).animatorController;
+            var controller = new AnimatorController();
+            AssetDatabase.CreateAsset(controller, dest);
+            controller.MergeControllers(baseController);
 
             if (!controller.HasParameter(StageParametersId))
                 controller.AddParameter(StageParametersId, AnimatorControllerParameterType.Int);
             if (controller.HasLayer("Fukidashi System"))
+            {
+                AssetDatabase.SaveAssets();
                 return controller; // already configured
+            }
+
             controller.AddLayer("Fukidashi System");
 
             var layer = controller.GetLayer("Fukidashi System");
@@ -350,7 +374,7 @@ namespace Mochizuki.VRChat.FukidashiSystem
             avatar.SetAnimationLayer(VRCAvatarDescriptor.AnimLayerType.FX, controller);
             avatar.SetExpressions(expr, parameters);
 
-            var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            var instance = (GameObject) PrefabUtility.InstantiatePrefab(prefab);
             PrefabUtility.UnpackPrefabInstance(instance, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
             instance.transform.parent = parent.transform;
             instance.transform.localPosition = new Vector3(0, 0, 0);
